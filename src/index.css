@@ -1,0 +1,168 @@
+/* index.css - Global Styles and Variables */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;600&display=swap');
+
+:root {
+  --bg-dark: #0f1115;
+  --bg-panel: rgba(20, 24, 32, 0.7);
+  --bg-panel-solid: #141820;
+  
+  --accent-mclaren: #ff8000;
+  --accent-mclaren-hover: #ff9933;
+  --accent-blue: #00ccff;
+  
+  --text-main: #f0f4f8;
+  --text-muted: #8b9bb4;
+  
+  --border-light: rgba(255, 255, 255, 0.1);
+  --border-accent: rgba(255, 128, 0, 0.3);
+  
+  --glass-blur: blur(12px);
+  --glass-border: 1px solid var(--border-light);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  
+  --font-display: 'Orbitron', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  overflow: hidden; /* Prevent scrolling, app is a full-screen canvas */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Base App Layout */
+#root {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Glassmorphism Panel Utility */
+.glass-panel {
+  background: var(--bg-panel);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* Typography Utilities */
+h1, h2, h3, h4, h5, h6, .display-font {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Common Button Styles */
+.btn {
+  background: transparent;
+  border: 1px solid var(--border-light);
+  color: var(--text-main);
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+}
+
+.btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-primary {
+  background: var(--accent-mclaren);
+  border-color: var(--accent-mclaren);
+  color: #000;
+}
+
+.btn-primary:hover {
+  background: var(--accent-mclaren-hover);
+  border-color: var(--accent-mclaren-hover);
+  box-shadow: 0 0 15px rgba(255, 128, 0, 0.4);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Specific Layout Sections */
+.ai-panel {
+  width: 380px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  border-right: var(--glass-border);
+}
+
+.canvas-container {
+  flex-grow: 1;
+  position: relative;
+  height: 100%;
+}
+
+.overlay-ui {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem;
+}
+
+/* Tooltips & Badges */
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: var(--font-display);
+}
+
+.badge-outline {
+  border: 1px solid var(--accent-mclaren);
+  color: var(--accent-mclaren);
+}
