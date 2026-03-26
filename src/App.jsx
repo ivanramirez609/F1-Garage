@@ -82,6 +82,31 @@ function App() {
                 ))}
              </div>
           </footer>
+          
+          <button 
+            onClick={() => {
+              setCurrentCar('2024 MCL38');
+              setIsExploded(false);
+              setCompany('');
+              setShowOnboarding(true);
+            }}
+            style={{
+              position: 'absolute',
+              bottom: '1rem',
+              right: '1rem',
+              padding: '0.5rem',
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-muted)',
+              fontSize: '0.75rem',
+              opacity: 0.5,
+              cursor: 'pointer',
+              pointerEvents: 'auto',
+              textDecoration: 'underline'
+            }}
+          >
+            Restart
+          </button>
         </div>
       </main>
       
