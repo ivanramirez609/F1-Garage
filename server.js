@@ -86,7 +86,7 @@ app.post('/api/color', async (req, res) => {
         temperature: 0.1,
       }
     });
-
+    const text = response.text;
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) {
       throw new Error("No valid JSON object found in response: " + text);
@@ -97,6 +97,27 @@ app.post('/api/color', async (req, res) => {
   } catch (error) {
     console.error('Error in /api/color:', error);
     res.status(500).json({ error: 'Failed to resolve colors.' });
+  }
+});
+app.get('/api/logo', async (req, res) => {
+  try {
+    const domain = req.query.domain;
+    if (!domain) {
+      return res.status(400).send('Domain is required');
+    }
+    const url = `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://${domain}&size=256`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Failed to fetch from gstatic");
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    
+    res.set('Content-Type', response.headers.get('content-type') || 'image/png');
+    res.set('Access-Control-Allow-Origin', '*'); 
+    res.send(buffer);
+  } catch (error) {
+    console.error('Error proxying logo:', error);
+    res.status(500).send('Error proxying logo');
   }
 });
 

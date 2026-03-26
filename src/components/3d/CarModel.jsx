@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF, Decal, useTexture } from '@react-three/drei';
+import logoImg from '../../assets/logo.png';
 import * as THREE from 'three';
 import gsap from 'gsap';
 
@@ -58,6 +59,8 @@ const PlaceholderCar = ({ isExploded, carId, company }) => {
   const wheelRLRef = useRef();
   const wheelRRRef = useRef();
   const [aiColors, setAiColors] = useState(null);
+  const defaultLogoTexture = useTexture(logoImg);
+  const [dynamicLogo, setDynamicLogo] = useState(null);
 
   const config = getCarConfig(carId);
 
@@ -102,6 +105,37 @@ const PlaceholderCar = ({ isExploded, carId, company }) => {
        setAiColors(null);
     }
   }, [company, matchedBrand]);
+
+  useEffect(() => {
+    if (normalizedCompany) {
+      let isSubscribed = true;
+      const domain = `${normalizedCompany.replace(/\s+/g, '')}.com`;
+      const url = `http://localhost:3001/api/logo?domain=${domain}`;
+      
+      const loader = new THREE.TextureLoader();
+      loader.setCrossOrigin('anonymous');
+      
+      loader.load(
+        url,
+        (texture) => {
+          texture.colorSpace = THREE.SRGBColorSpace;
+          texture.anisotropy = 16;
+          if (isSubscribed) setDynamicLogo(texture);
+        },
+        undefined,
+        (err) => {
+          console.warn('Failed to load company logo from gstatic:', err);
+          if (isSubscribed) setDynamicLogo(null);
+        }
+      );
+      
+      return () => { isSubscribed = false; };
+    } else {
+      setDynamicLogo(null);
+    }
+  }, [normalizedCompany]);
+
+  const activeLogoTexture = dynamicLogo || defaultLogoTexture;
 
   if (matchedBrand) {
     chassisColor = COMPANY_COLORS[matchedBrand].chassis;
@@ -192,6 +226,20 @@ const PlaceholderCar = ({ isExploded, carId, company }) => {
       <mesh ref={chassisRef} position={[0, 0, 0]}>
         <boxGeometry args={config.chassisSize} />
         <meshStandardMaterial color={chassisColor} metalness={0.7} roughness={0.2} />
+        <Decal
+          position={[0, config.chassisSize[1]/2, 0.5]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          scale={[1.2, 1.2, 1.2]}
+        >
+          <meshStandardMaterial
+            map={activeLogoTexture}
+            transparent
+            polygonOffset
+            polygonOffsetFactor={-1}
+            roughness={0.5}
+            metalness={0.1}
+          />
+        </Decal>
       </mesh>
       
       {/* Engine Block */}
@@ -210,6 +258,20 @@ const PlaceholderCar = ({ isExploded, carId, company }) => {
       <mesh ref={rearWingRef} position={[0, 0.5, -1.8 * config.scale]}>
         <boxGeometry args={config.rearWingSize} />
         <meshStandardMaterial color={wingColor} metalness={0.8} roughness={0.3} />
+        <Decal
+          position={[0, config.rearWingSize[1]/2, 0]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          scale={[0.8, 0.8, 1]}
+        >
+          <meshStandardMaterial
+            map={activeLogoTexture}
+            transparent
+            polygonOffset
+            polygonOffsetFactor={-1}
+            roughness={0.5}
+            metalness={0.1}
+          />
+        </Decal>
       </mesh>
 
       {/* Wheels */}
