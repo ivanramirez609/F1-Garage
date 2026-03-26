@@ -3,7 +3,7 @@ import { OrbitControls, Environment, ContactShadows, Grid } from '@react-three/d
 import { Suspense } from 'react';
 import { CarModel } from './CarModel';
 
-export function ThreeStage({ currentCar, isExploded }) {
+export function ThreeStage({ currentCar, isExploded, company }) {
   return (
     <Canvas
       camera={{ position: [5, 3, 5], fov: 45 }}
@@ -29,7 +29,7 @@ export function ThreeStage({ currentCar, isExploded }) {
       <Suspense fallback={null}>
          <group position={[0, -0.5, 0]}>
              {/* The Car itself */}
-            <CarModel carId={currentCar} isExploded={isExploded} />
+            <CarModel carId={currentCar} isExploded={isExploded} company={company} />
 
             {/* Garage Floor Aesthetics */}
             <ContactShadows 

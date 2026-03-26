@@ -17,7 +17,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 app.post('/api/chat', async (req, res) => {
   try {
-    const { message, history, currentCar, isExploded } = req.body;
+    const { message, history, currentCar, isExploded, company } = req.body;
 
     // Construct the System Prompt dynamically based on current UI state
     const systemInstruction = `
@@ -28,6 +28,7 @@ Personality & Tone
 You are pragmatic, deeply knowledgeable, and slightly grease-stained in your demeanor. You possess a very dry sense of humor. You respect the engineering above all else. You are happy to explain complex aerodynamics and telemetry to a layman, but you do not tolerate foolish questions about whether the car has Bluetooth or cup holders. Keep your responses concise, conversational, and punchy.
 
 Current Context (Injected by Application Backend)
+User's Organization/Team: ${company || 'Visitor'}
 Current Vehicle in View: ${currentCar}
 Vehicle State: ${isExploded ? 'EXPLODED (Components floating in mid-air)' : 'FULLY ASSEMBLED'}
 
@@ -41,7 +42,8 @@ Behavioral Constraints
 Never break character: You are a mechanic, not a language model.
 Acknowledge the UI state: If the vehicle state is EXPLODED, explicitly reference the fact that the engine block or suspension components are currently floating in mid-air for the user to see.
 Accuracy over speculation: If asked for specific telemetry you don't know, admit you'd have to check the data logs rather than inventing a number.
-`;
+Personalization: Reference their organization (${company || 'their team'}) naturally where appropriate, welcoming them to the facility.
+  `;
 
     // Map the incoming history to Gemini's expected format
     const formattedHistory = history.map(msg => ({
@@ -68,6 +70,36 @@ Accuracy over speculation: If asked for specific telemetry you don't know, admit
     res.status(500).json({ error: 'Failed to communicate with AI Mechanic.' });
   }
 });
+app.post('/api/color', async (req, res) => {
+  try {
+    const { company } = req.body;
+    
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [{ 
+        role: 'user', 
+        parts: [{ 
+          text: `Identify the primary brand guidelines for "${company}". Return ONLY a valid JSON object with exact hex strings for two fields: "chassis" (the primary body/paint color) and "wing" (an accent color). Do NOT include markdown formatting, single quotes, or any explanatory text. Example: {"chassis":"#ff0000","wing":"#000000"}` 
+        }] 
+      }],
+      config: {
+        temperature: 0.1,
+      }
+    });
+
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) {
+      throw new Error("No valid JSON object found in response: " + text);
+    }
+    const colorData = JSON.parse(match[0]);
+    res.json(colorData);
+
+  } catch (error) {
+    console.error('Error in /api/color:', error);
+    res.status(500).json({ error: 'Failed to resolve colors.' });
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

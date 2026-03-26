@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
@@ -46,7 +46,7 @@ const getCarConfig = (carId) => {
   }
 };
 
-const PlaceholderCar = ({ isExploded, carId }) => {
+const PlaceholderCar = ({ isExploded, carId, company }) => {
   const groupRef = useRef();
   
   const chassisRef = useRef();
@@ -57,8 +57,59 @@ const PlaceholderCar = ({ isExploded, carId }) => {
   const wheelFRRef = useRef();
   const wheelRLRef = useRef();
   const wheelRRRef = useRef();
+  const [aiColors, setAiColors] = useState(null);
 
   const config = getCarConfig(carId);
+
+  const COMPANY_COLORS = {
+    'ferrari': { chassis: '#EE1C25', wing: '#111111' },
+    'mercedes': { chassis: '#C0C0C0', wing: '#00D2BE' },
+    'red bull': { chassis: '#001A30', wing: '#FF1212' },
+    'google': { chassis: '#4285F4', wing: '#EA4335' },
+    'apple': { chassis: '#555555', wing: '#FFFFFF' },
+    'mclaren': { chassis: '#ff8000', wing: '#111111' },
+    'aston martin': { chassis: '#006f62', wing: '#ffee00' }, // Green with yellow accent
+  };
+
+  const normalizedCompany = company ? company.toLowerCase().trim() : '';
+  let chassisColor = config.chassisColor;
+  let wingColor = config.wingColor;
+
+  // Exact match or contains check
+  const matchedBrand = Object.keys(COMPANY_COLORS).find(brand => 
+    normalizedCompany.includes(brand)
+  );
+
+  useEffect(() => {
+    if (company && !matchedBrand) {
+      const fetchColors = async () => {
+        try {
+          const response = await fetch('http://localhost:3001/api/color', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ company })
+          });
+          if (response.ok) {
+             const data = await response.json();
+             setAiColors(data);
+          }
+        } catch (error) {
+           console.error("Failed to fetch company colors:", error);
+        }
+      };
+      fetchColors();
+    } else {
+       setAiColors(null);
+    }
+  }, [company, matchedBrand]);
+
+  if (matchedBrand) {
+    chassisColor = COMPANY_COLORS[matchedBrand].chassis;
+    wingColor = COMPANY_COLORS[matchedBrand].wing;
+  } else if (aiColors) {
+    chassisColor = aiColors.chassis;
+    wingColor = aiColors.wing;
+  }
 
   useEffect(() => {
     // Define the expanded positions
@@ -140,7 +191,7 @@ const PlaceholderCar = ({ isExploded, carId }) => {
       {/* Chassis */}
       <mesh ref={chassisRef} position={[0, 0, 0]}>
         <boxGeometry args={config.chassisSize} />
-        <meshStandardMaterial color={config.chassisColor} metalness={0.7} roughness={0.2} />
+        <meshStandardMaterial color={chassisColor} metalness={0.7} roughness={0.2} />
       </mesh>
       
       {/* Engine Block */}
@@ -152,13 +203,13 @@ const PlaceholderCar = ({ isExploded, carId }) => {
       {/* Front Wing */}
       <mesh ref={frontWingRef} position={[0, 0, 2 * config.scale]}>
         <boxGeometry args={config.frontWingSize} />
-        <meshStandardMaterial color={config.wingColor} metalness={0.8} roughness={0.3} />
+        <meshStandardMaterial color={wingColor} metalness={0.8} roughness={0.3} />
       </mesh>
 
       {/* Rear Wing */}
       <mesh ref={rearWingRef} position={[0, 0.5, -1.8 * config.scale]}>
         <boxGeometry args={config.rearWingSize} />
-        <meshStandardMaterial color={config.wingColor} metalness={0.8} roughness={0.3} />
+        <meshStandardMaterial color={wingColor} metalness={0.8} roughness={0.3} />
       </mesh>
 
       {/* Wheels */}
@@ -182,7 +233,7 @@ const PlaceholderCar = ({ isExploded, carId }) => {
   );
 };
 
-export function CarModel({ carId, isExploded }) {
-  // Pass the carId into the placeholder so it can customize itself
-  return <PlaceholderCar isExploded={isExploded} carId={carId} />;
+export function CarModel({ carId, isExploded, company }) {
+  // Pass the carId and company into the placeholder so it can customize itself
+  return <PlaceholderCar isExploded={isExploded} carId={carId} company={company} />;
 }

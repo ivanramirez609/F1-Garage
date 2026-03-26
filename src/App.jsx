@@ -1,14 +1,26 @@
 import { useState } from 'react';
 import { ThreeStage } from './components/3d/ThreeStage';
 import { AIChatPanel } from './components/chat/AIChatPanel';
+import { OnboardingWizard } from './components/onboarding/OnboardingWizard';
 import './index.css';
 
 function App() {
   const [currentCar, setCurrentCar] = useState('2024 MCL38');
   const [isExploded, setIsExploded] = useState(false);
+  const [company, setCompany] = useState('');
+  const [showOnboarding, setShowOnboarding] = useState(true);
 
   return (
-    <div className="app-container">
+    <>
+      {showOnboarding && (
+        <OnboardingWizard 
+          onComplete={(name) => {
+            setCompany(name);
+            setShowOnboarding(false);
+          }} 
+        />
+      )}
+      <div className="app-container">
       
       {/* Left Panel: AI Mechanic */}
       <aside className="ai-panel glass-panel">
@@ -18,7 +30,7 @@ function App() {
         </div>
         
         <div className="flex-grow p-4" style={{ flexGrow: 1, padding: '1rem', display: 'flex', flexDirection: 'column' }}>
-           <AIChatPanel currentCar={currentCar} isExploded={isExploded} />
+           <AIChatPanel currentCar={currentCar} isExploded={isExploded} company={company} />
         </div>
       </aside>
 
@@ -27,7 +39,7 @@ function App() {
         
         {/* R3F Canvas */}
         <div style={{ width: '100%', height: '100%' }}>
-            <ThreeStage currentCar={currentCar} isExploded={isExploded} />
+            <ThreeStage currentCar={currentCar} isExploded={isExploded} company={company} />
         </div>
 
         {/* Floating UI Layer */}
@@ -74,6 +86,7 @@ function App() {
       </main>
       
     </div>
+  </>
   );
 }
 

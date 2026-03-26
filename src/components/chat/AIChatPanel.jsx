@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, User, Wrench } from 'lucide-react';
 
-export function AIChatPanel({ currentCar, isExploded }) {
+export function AIChatPanel({ currentCar, isExploded, company }) {
   const [messages, setMessages] = useState([
     { role: 'model', text: 'Oi. Mac here. Take a look at the telemetry, tell me what you see, and don\'t touch the front wing angle.' }
   ]);
@@ -37,7 +37,8 @@ export function AIChatPanel({ currentCar, isExploded }) {
           message: userMsg,
           history: messages, // Send past history for context
           currentCar,        // Inject active car state
-          isExploded         // Inject active animation state
+          isExploded,        // Inject active animation state
+          company           // Inject visitor company name
         })
       });
 
