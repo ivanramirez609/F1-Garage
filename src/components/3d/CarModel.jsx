@@ -64,27 +64,12 @@ const PlaceholderCar = ({ isExploded, carId, company }) => {
 
   const config = getCarConfig(carId);
 
-  const COMPANY_COLORS = {
-    'ferrari': { chassis: '#EE1C25', wing: '#111111' },
-    'mercedes': { chassis: '#C0C0C0', wing: '#00D2BE' },
-    'red bull': { chassis: '#001A30', wing: '#FF1212' },
-    'google': { chassis: '#4285F4', wing: '#EA4335' },
-    'apple': { chassis: '#555555', wing: '#FFFFFF' },
-    'mclaren': { chassis: '#ff8000', wing: '#111111' },
-    'aston martin': { chassis: '#006f62', wing: '#ffee00' }, // Green with yellow accent
-  };
-
   const normalizedCompany = company ? company.toLowerCase().trim() : '';
   let chassisColor = config.chassisColor;
   let wingColor = config.wingColor;
 
-  // Exact match or contains check
-  const matchedBrand = Object.keys(COMPANY_COLORS).find(brand => 
-    normalizedCompany.includes(brand)
-  );
-
   useEffect(() => {
-    if (company && !matchedBrand) {
+    if (company) {
       const fetchColors = async () => {
         try {
           const response = await fetch('http://localhost:3001/api/color', {
@@ -104,7 +89,7 @@ const PlaceholderCar = ({ isExploded, carId, company }) => {
     } else {
        setAiColors(null);
     }
-  }, [company, matchedBrand]);
+  }, [company]);
 
   useEffect(() => {
     if (normalizedCompany) {
@@ -137,10 +122,7 @@ const PlaceholderCar = ({ isExploded, carId, company }) => {
 
   const activeLogoTexture = dynamicLogo || defaultLogoTexture;
 
-  if (matchedBrand) {
-    chassisColor = COMPANY_COLORS[matchedBrand].chassis;
-    wingColor = COMPANY_COLORS[matchedBrand].wing;
-  } else if (aiColors) {
+  if (aiColors) {
     chassisColor = aiColors.chassis;
     wingColor = aiColors.wing;
   }

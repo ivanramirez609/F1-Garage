@@ -74,13 +74,21 @@ app.post('/api/color', async (req, res) => {
   try {
     const { company } = req.body;
     
+    const domain = `${company.replace(/\s+/g, '').toLowerCase()}.com`;
+    const url = `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://${domain}&size=256`;
+    const logoRes = await fetch(url);
+    if (!logoRes.ok) throw new Error("Failed to fetch from gstatic");
+    const arrayBuffer = await logoRes.arrayBuffer();
+    const base64Image = Buffer.from(arrayBuffer).toString("base64");
+
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: [{ 
         role: 'user', 
-        parts: [{ 
-          text: `Identify the primary brand guidelines for "${company}". Return ONLY a valid JSON object with exact hex strings for two fields: "chassis" (the primary body/paint color) and "wing" (an accent color). Do NOT include markdown formatting, single quotes, or any explanatory text. Example: {"chassis":"#ff0000","wing":"#000000"}` 
-        }] 
+        parts: [
+          { inlineData: { data: base64Image, mimeType: 'image/png' } },
+          { text: `Identify the primary brand colors from this logo image. Return ONLY a valid JSON object with exact hex strings for two fields: "chassis" (the primary/dominant color of the logo) and "wing" (the secondary/accent color). Do NOT include markdown formatting, single quotes, or any explanatory text. Example: {"chassis":"#ff0000","wing":"#000000"}` }
+        ] 
       }],
       config: {
         temperature: 0.1,
