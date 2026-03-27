@@ -4,8 +4,10 @@ import { AIChatPanel } from './components/chat/AIChatPanel';
 import './index.css';
 
 function App() {
-  const [currentCar, setCurrentCar] = useState('2024 MCL38');
+  const [currentCar, setCurrentCar] = useState('Yardley McLaren M23');
   const [isExploded, setIsExploded] = useState(false);
+  const [customColor, setCustomColor] = useState('');
+  const [showHistory, setShowHistory] = useState(false);
 
   return (
     <div className="app-container">
@@ -27,7 +29,7 @@ function App() {
         
         {/* R3F Canvas */}
         <div style={{ width: '100%', height: '100%' }}>
-            <ThreeStage currentCar={currentCar} isExploded={isExploded} />
+            <ThreeStage currentCar={currentCar} isExploded={isExploded} customColor={customColor} showHistory={showHistory} />
         </div>
 
         {/* Floating UI Layer */}
@@ -45,7 +47,24 @@ function App() {
               </p>
             </div>
             
-            <div className="glass-panel" style={{ padding: '1rem', borderRadius: '8px', display: 'flex', gap: '1rem' }}>
+            <div className="glass-panel" style={{ padding: '1rem', borderRadius: '8px', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <select 
+                value={customColor} 
+                onChange={(e) => setCustomColor(e.target.value)}
+                className="btn glass-panel"
+                style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', color: 'white', border: '1px solid rgba(255, 255, 255, 0.2)', padding:'0.5rem', borderRadius:'8px' }}
+              >
+                <option value="" style={{ color: 'black' }}>Original Era Color</option>
+                <option value="googley" style={{ color: 'black' }}>Googley</option>
+              </select>
+              {currentCar === 'McLaren-Mercedes MP4/10' && (
+                <button 
+                  className={`btn ${showHistory ? 'btn-primary' : ''}`}
+                  onClick={() => setShowHistory(!showHistory)}
+                >
+                  {showHistory ? 'Hide History' : 'Show History'}
+                </button>
+              )}
               <button 
                 className={`btn ${isExploded ? 'btn-primary' : ''}`}
                 onClick={() => setIsExploded(!isExploded)}
@@ -58,11 +77,14 @@ function App() {
           {/* Bottom Bar (Carousel) */}
           <footer style={{ pointerEvents: 'auto', display: 'flex', justifyContent: 'center' }}>
              <div className="glass-panel" style={{ padding: '1rem', borderRadius: '12px', display: 'flex', gap: '1rem' }}>
-                {['1988 MP4/4', '1998 MP4/13', '2008 MP4-23', '2024 MCL38'].map(car => (
+                {['Yardley McLaren M23', 'McLaren-Mercedes MP4/10', 'McLaren MP4-13'].map(car => (
                   <button 
                     key={car}
                     className={`btn ${currentCar === car ? 'btn-primary' : ''}`}
-                    onClick={() => setCurrentCar(car)}
+                    onClick={() => {
+                      setCurrentCar(car);
+                      setShowHistory(false);
+                    }}
                     style={{ minWidth: '140px' }}
                   >
                     {car}

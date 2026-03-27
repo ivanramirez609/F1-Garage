@@ -2,8 +2,9 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, ContactShadows, Grid } from '@react-three/drei';
 import { Suspense } from 'react';
 import { CarModel } from './CarModel';
+import { HistoryImages } from './HistoryImages';
 
-export function ThreeStage({ currentCar, isExploded }) {
+export function ThreeStage({ currentCar, isExploded, customColor, showHistory }) {
   return (
     <Canvas
       camera={{ position: [5, 3, 5], fov: 45 }}
@@ -29,7 +30,9 @@ export function ThreeStage({ currentCar, isExploded }) {
       <Suspense fallback={null}>
          <group position={[0, -0.5, 0]}>
              {/* The Car itself */}
-            <CarModel carId={currentCar} isExploded={isExploded} />
+            <CarModel carId={currentCar} isExploded={isExploded} customColor={customColor} />
+            
+            {showHistory && <HistoryImages carId={currentCar} />}
 
             {/* Garage Floor Aesthetics */}
             <ContactShadows 
