@@ -1,16 +1,25 @@
 import { useState } from 'react';
 import { ThreeStage } from './components/3d/ThreeStage';
 import { AIChatPanel } from './components/chat/AIChatPanel';
+import { OnboardingWizard } from './components/OnboardingWizard';
 import './index.css';
 
 function App() {
   const [currentCar, setCurrentCar] = useState('Yardley McLaren M23');
   const [isExploded, setIsExploded] = useState(false);
-  const [customColor, setCustomColor] = useState('');
   const [showHistory, setShowHistory] = useState(false);
+
+  const [companyName, setCompanyName] = useState('');
+  const [showWizard, setShowWizard] = useState(true);
+
+  const handleWizardComplete = (company) => {
+    setCompanyName(company);
+    setShowWizard(false);
+  };
 
   return (
     <div className="app-container">
+      {showWizard && <OnboardingWizard onComplete={handleWizardComplete} />}
       
       {/* Left Panel: AI Mechanic */}
       <aside className="ai-panel glass-panel">
@@ -29,7 +38,7 @@ function App() {
         
         {/* R3F Canvas */}
         <div style={{ width: '100%', height: '100%' }}>
-            <ThreeStage currentCar={currentCar} isExploded={isExploded} customColor={customColor} showHistory={showHistory} />
+            <ThreeStage currentCar={currentCar} isExploded={isExploded} companyName={companyName} showHistory={showHistory} />
         </div>
 
         {/* Floating UI Layer */}
@@ -48,15 +57,6 @@ function App() {
             </div>
             
             <div className="glass-panel" style={{ padding: '1rem', borderRadius: '8px', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              <select 
-                value={customColor} 
-                onChange={(e) => setCustomColor(e.target.value)}
-                className="btn glass-panel"
-                style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', color: 'white', border: '1px solid rgba(255, 255, 255, 0.2)', padding:'0.5rem', borderRadius:'8px' }}
-              >
-                <option value="" style={{ color: 'black' }}>Original Era Color</option>
-                <option value="googley" style={{ color: 'black' }}>Googley</option>
-              </select>
               {currentCar === 'McLaren-Mercedes MP4/10' && (
                 <button 
                   className={`btn ${showHistory ? 'btn-primary' : ''}`}
@@ -92,6 +92,20 @@ function App() {
                 ))}
              </div>
           </footer>
+
+          {/* Bottom Right (Reset) */}
+          <div style={{ position: 'absolute', bottom: '2rem', right: '2rem', pointerEvents: 'auto' }}>
+            <button 
+              className="btn btn-primary"
+              onClick={() => {
+                setCompanyName('');
+                setShowWizard(true);
+              }}
+              style={{ backgroundColor: '#222', borderColor: '#444', color: '#fff', opacity: 0.8 }}
+            >
+              Reset Session
+            </button>
+          </div>
         </div>
       </main>
       

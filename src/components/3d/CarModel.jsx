@@ -1,8 +1,21 @@
 import { useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF, useTexture, Decal } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
+import { getBrandAssets } from '../../utils/brandMapping';
+
+const LogoDecals = ({ logoUrl }) => {
+  if (!logoUrl) return null;
+  const texture = useTexture(logoUrl);
+  return (
+    <>
+      <Decal position={[0.7, 0.4, 0]} rotation={[0, Math.PI / 2, 0]} scale={[0.8, 0.4, 1]} map={texture} />
+      <Decal position={[-0.7, 0.4, 0]} rotation={[0, -Math.PI / 2, 0]} scale={[0.8, 0.4, 1]} map={texture} />
+      <Decal position={[0, 0.7, 1.3]} rotation={[-Math.PI / 8, 0, 0]} scale={[0.6, 0.3, 1]} map={texture} />
+    </>
+  );
+};
 
 const getCarConfig = (carId, isGoogley) => {
   switch (carId) {
@@ -60,11 +73,14 @@ const getCarConfig = (carId, isGoogley) => {
   }
 };
 
-const MclarenModel = ({ isExploded, carId, customColor }) => {
+const MclarenModel = ({ isExploded, carId, companyName }) => {
   const groupRef = useRef();
   const meshRef = useRef();
-  const isGoogley = customColor === 'googley';
+  
+  const isGoogley = companyName && companyName.toLowerCase().trim() === 'google';
   const config = getCarConfig(carId, isGoogley);
+  
+  const { color, logoUrl } = getBrandAssets(companyName);
 
   // Load the appropriate GLTF model
   const { scene, nodes } = useGLTF(config.modelPath);
@@ -122,15 +138,16 @@ const MclarenModel = ({ isExploded, carId, customColor }) => {
   return (
     <group ref={groupRef} scale={config.scale}>
       <mesh ref={meshRef} geometry={nodes.Mesh10.geometry} position={[0, -0.5, 0]}>
-        {/* Apply dynamic config colors based on the car generation selected */}
-        <meshStandardMaterial color={customColor || config.chassisColor} metalness={0.7} roughness={0.2} />
+        {/* Apply dynamic brand color */}
+        <meshStandardMaterial color={color} metalness={0.7} roughness={0.2} />
+        <LogoDecals logoUrl={logoUrl} />
       </mesh>
     </group>
   );
 };
 
-export function CarModel({ carId, isExploded, customColor }) {
-  return <MclarenModel isExploded={isExploded} carId={carId} customColor={customColor} />;
+export function CarModel({ carId, isExploded, companyName }) {
+  return <MclarenModel isExploded={isExploded} carId={carId} companyName={companyName} />;
 }
 
 useGLTF.preload('/models/mclaren.glb');

@@ -44,10 +44,15 @@ Accuracy over speculation: If asked for specific telemetry you don't know, admit
 `;
 
     // Map the incoming history to Gemini's expected format
-    const formattedHistory = history.map(msg => ({
+    let formattedHistory = history.map(msg => ({
         role: msg.role === 'user' ? 'user' : 'model',
         parts: [{ text: msg.text }]
     }));
+
+    // Multi-turn conversations in Gemini must start with a 'user' role.
+    if (formattedHistory.length > 0 && formattedHistory[0].role === 'model') {
+        formattedHistory = formattedHistory.slice(1);
+    }
 
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',

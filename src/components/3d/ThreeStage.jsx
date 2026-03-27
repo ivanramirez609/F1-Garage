@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 import { CarModel } from './CarModel';
 import { HistoryImages } from './HistoryImages';
 
-export function ThreeStage({ currentCar, isExploded, customColor, showHistory }) {
+export function ThreeStage({ currentCar, isExploded, companyName, showHistory }) {
   return (
     <Canvas
       camera={{ position: [5, 3, 5], fov: 45 }}
@@ -30,7 +30,7 @@ export function ThreeStage({ currentCar, isExploded, customColor, showHistory })
       <Suspense fallback={null}>
          <group position={[0, -0.5, 0]}>
              {/* The Car itself */}
-            <CarModel carId={currentCar} isExploded={isExploded} customColor={customColor} />
+            <CarModel carId={currentCar} isExploded={isExploded} companyName={companyName} />
             
             {showHistory && <HistoryImages carId={currentCar} />}
 
